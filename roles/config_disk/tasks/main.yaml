@@ -1,0 +1,12 @@
+---
+# - name: Configurando disco
+#   ansible.builtin.import_tasks: disk.yaml
+
+# # # - name: Configurando disco
+# # #   ansible.builtin.import_tasks: path.yaml
+
+# - name: Configurando disco
+#   ansible.builtin.import_tasks: new_disk.yaml
+
+- name: Configurando disco
+  ansible.builtin.import_tasks: timedatectl.yaml

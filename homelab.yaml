@@ -1,0 +1,8 @@
+---
+- name: Configurando VMs
+  hosts: labs
+  gather_facts: false
+
+  roles:
+    
+    - role: vmware

@@ -1,0 +1,42 @@
+- name: Buscando IP livre no https://ipam-homelab.lcs.local/
+  ansible.builtin.shell: |
+    curl -sk -H "token: NuU89qzimM-OHAtSiJzYL9SW-tG-ZkNV" \
+    https://ipam-homelab.lcs.local/api/aap/subnets/7/first_free/ \
+    | jq -r '.data'
+  register: ipfree
+  delegate_to: localhost
+
+- name: Criando a VM... Que tal um café enquanto eu faço isso por você?
+  community.vmware.vmware_guest:
+    hostname: "https://vcsa01-homelab.lcs.local"
+    username: "administrator@lcs.local"
+    password: "Homelab@1983"
+    cluster: "vcsa01-homelab.lcs.local"
+    datacenter: "homelab"
+    validate_certs: no
+    folder: "/AAP-Claro"
+    name: "{{hostname | upper}}"
+    state: poweredon
+    template: "template-rhel9"
+    #annotation: "{{annotation}}"
+    datastore: "datastore-homelab(hd)"
+    hardware:
+      version: latest
+    networks:
+    - name: "{{vlan}}"
+      ip: "{{ipfree.stdout}}"
+      netmask: 255.255.255.192
+      gateway: "10.10.10.1"
+      start_connected: True
+      type: static
+      # device_type: vmxnet3
+    wait_for_ip_address: yes
+    customization:
+      domain: orizon.local
+      dns_servers:
+          - 10.10.10.3
+      dns_suffix: "lcs.local"
+      hostname: "{{hostname | lower}}"
+    #wait_for_ip_address: yes
+    wait_for_customization: yes 
+  delegate_to: localhost

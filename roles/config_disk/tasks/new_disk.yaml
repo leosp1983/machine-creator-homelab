@@ -1,0 +1,65 @@
+- name: Listando o disco adicionado para formatar
+  ansible.builtin.shell: |
+    for disk in $(lsblk -dn -o NAME,TYPE | awk '$2=="disk"{print $1}'); do
+      parts=$(lsblk /dev/$disk -no NAME | wc -l)
+      if [ "$parts" -eq 1 ]; then
+        echo $disk
+      fi
+    done
+  register: new_disks
+  changed_when: false
+
+- name: Formantando o novo disco
+  community.general.parted:
+    device: /dev/{{new_disks.stdout}}
+    label: gpt
+    number: 1
+    state: present
+    part_type: primary
+    fs_type: xfs
+  register: resultado_parted
+
+- name: Verificando o nome do vg da partição /lab_claro para extensão
+  ansible.builtin.shell: |
+    df -h /lab_claro | tail -1 | awk '{print $1}' | xargs lvdisplay | grep "VG Name" | awk '{print $3}'
+  register: vg_name
+  changed_when: false
+
+- name: Extendendo o vg {{vg_name.stdout}} com o novo disco /dev/{{new_disks.stdout}}1
+  ansible.builtin.shell: |
+    vgextend {{vg_name.stdout}} /dev/{{new_disks.stdout}}1
+
+- name: Verificando o nome do lv da partição /lab_claro para extensão
+  ansible.builtin.shell: |
+    lvs --noheadings -o lv_name --select vg_name={{vg_name.stdout}}
+  register: lv_name
+  changed_when: false
+
+- name: Estendendo o lv {{lv_name.stdout | trim }} com espaço disponível do vg {{ vg_name.stdout }}
+  community.general.lvol:
+    vg: "{{vg_name.stdout}}"
+    lv: "{{lv_name.stdout | trim }}"
+    size: +100%FREE
+    resizefs: true
+
+# - name: Verificar o nome do pv do vg {{ vg_name.stdout }}}
+#   ansible.builtin.shell: |
+#     pvs --noheadings -o pv_name --separator ',' --select vg_name={{vg_name.stdout}}
+#   register: pv_name
+#   changed_when: false
+
+# - name: Gerar lista de PVs atuais
+#   set_fact:
+#     vg_pvs: "{{ pv_name.stdout_lines | map('trim') | list }}"
+
+# - name: Adicionar novo PV à lista (evitando duplicatas)
+#   set_fact:
+#     all_pvs: "{{ (vg_pvs + ['/dev/new_disks.stdout1']) | unique }}"
+
+# - name: Criar volume físico com pvcreate
+#   community.general.lvg:
+#     vg: "{{ vg_name.stdout }}"
+#     pvs: "{{ all_pvs }}"
+#     state: present
+#     pvresize: true
+#     force: true

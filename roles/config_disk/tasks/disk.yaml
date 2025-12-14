@@ -1,0 +1,49 @@
+- name: Criar partição LVM com parted
+  community.general.parted:
+    device: /dev/sdb
+    label: gpt
+    number: 1
+    state: present
+    part_type: primary
+    fs_type: xfs
+  register: resultado_parted
+
+- name: Criar volume físico com pvcreate
+  community.general.lvg:
+    vg: vg_lab_claro
+    pvs: /dev/sdb1
+    state: present
+  register: resultado_pv
+
+- name: Criar volume lógico
+  community.general.lvol:
+    vg: vg_lab_claro
+    lv: lv_lab_claro
+    size: 100%FREE
+  register: resultado_lvol
+
+# - ansible.builtin.debug:
+#     msg: 
+#       - "Resultado do pvcreate: {{ resultado_pv }}"
+#       - "Resultado do parted: {{ resultado_parted }}"
+#       - "Resultado do lvol: {{ resultado_lvol }}"
+
+- name: Criar sistema de arquivos no LV
+  community.general.filesystem:
+    fstype: xfs
+    dev: /dev/vg_lab_claro/lv_lab_claro
+  register: resultado_fs
+
+- name: Criar ponto de montagem
+  ansible.builtin.file:
+    path: /lab_claro
+    state: directory
+    mode: "0755"
+
+- name: Adicionar ao fstab
+  ansible.posix.mount:
+    path: /lab_claro
+    src: /dev/vg_lab_claro/lv_lab_claro
+    fstype: xfs
+    opts: defaults
+    state: mounted
