@@ -30,12 +30,11 @@
         status_code:
           - 200
           - 201
-      register: ipam_create
       delegate_to: localhost
 
     - name: Guardar ID do IP reservado
       ansible.builtin.set_fact:
-        ipam_address_id: "{{ ipam_create.json.data.id }}"
+        ipam_address_id: "{{ ipfree.json.data }}"
 
     - name: Criar VM a partir do template
       community.vmware.vmware_guest:
