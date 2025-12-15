@@ -19,10 +19,14 @@
 
   tasks:
     
-  - name: Criando VM
+  - name: nmcli
     include_role:
       name: nmcli
 
-  - name: Criando VM
+  - name: general_config
     include_role:
       name: general_config
+  
+  - name: add-packages-default
+    include_role:
+      name: add-packages-default
