@@ -1,6 +1,6 @@
 ---
 - name: Configurando VMs
-  hosts: aap
+  hosts: machine-creator-homelab
   gather_facts: false
 
   tasks:
