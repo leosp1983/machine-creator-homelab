@@ -1,0 +1,17 @@
+- name: Copiar script de ajuste de rede
+  ansible.builtin.template:
+    src: nmcli.sh.j2
+    dest: /root/nmcli.sh
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Garantir NetworkManager ativo
+  ansible.builtin.service:
+    name: NetworkManager
+    state: started
+    enabled: true
+
+- name: Ajustar rede via script (NetworkManager only)
+  ansible.builtin.script: /root/nmcli.sh
+  register: network_fix

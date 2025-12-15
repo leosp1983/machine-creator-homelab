@@ -1,0 +1,38 @@
+#!/bin/bash
+set -euo pipefail
+
+IFACE="ens33"
+IPADDR="10.10.10.9/26"
+GATEWAY="10.10.10.1"
+DNS="10.10.10.3"
+DOMAIN="lcs.local"
+
+echo "[INFO] Limpando configurações geradas pelo community.vmware.vmware_guest..."
+
+# Removendo conexão original do template
+nmcli connection delete "${IFACE}" || true
+
+# Removendo conexão VMware no NetworkManager
+nmcli -t -f NAME connection show | grep -i vmware | while read -r CONN; do
+  echo "[INFO] Deletando conexão NM: $CONN"
+  nmcli connection delete "$CONN" || true
+done
+
+echo "[INFO] Criando conexão nova via nmcli..."
+
+# Criando conexão
+nmcli connection add \
+  type ethernet \
+  ifname "${IFACE}" \
+  con-name "${IFACE}" \
+  ipv4.method manual \
+  ipv4.addresses "${IPADDR}" \
+  ipv4.gateway "${GATEWAY}" \
+  ipv4.dns "${DNS}" \
+  ipv4.dns-search "${DOMAIN}" \
+  connection.autoconnect yes
+
+# Sobubindo a conexão
+nmcli connection up "${IFACE}"
+
+echo "[SUCCESS] Configuração de rede aplicada com sucesso"

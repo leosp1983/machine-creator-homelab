@@ -1,9 +1,34 @@
-- name: Buscando IP livre no https://ipam-homelab.lcs.local/
-  ansible.builtin.shell: |
-    curl -sk -H "token: NuU89qzimM-OHAtSiJzYL9SW-tG-ZkNV" \
-    https://ipam-homelab.lcs.local/api/aap/subnets/7/first_free/ \
-    | jq -r '.data'
+- name: Buscar IP livre no phpIPAM
+  ansible.builtin.uri:
+    url: https://ipam-homelab.lcs.local/api/aap/subnets/7/first_free/
+    method: GET
+    headers:
+      token: NuU89qzimM-OHAtSiJzYL9SW-tG-ZkNV
+    validate_certs: false
+    return_content: true
   register: ipfree
+  delegate_to: localhost
+  changed_when: false
+
+- name: Reservar IP no phpIPAM
+  ansible.builtin.uri:
+    url: https://ipam-homelab.lcs.local/api/aap/addresses/
+    method: POST
+    headers:
+      token: NuU89qzimM-OHAtSiJzYL9SW-tG-ZkNV
+      Content-Type: application/json
+    validate_certs: false
+    body_format: json
+    body:
+      subnetId: 7
+      ip: "{{ ipfree.json.data }}"
+      hostname: "{{ hostname | lower }}"
+      description: "VM criada via Ansible"
+      owner: "Ansible"
+      state: 2
+    status_code:
+      - 200
+      - 201
   delegate_to: localhost
 
 - name: Criar VM a partir do template
@@ -20,7 +45,7 @@
     state: present
     networks:
       - name: vlan-homelab
-        ip: "{{ ipfree.stdout }}"
+        ip: "{{ ipfree.json.data }}"
         netmask: 255.255.255.192
         gateway: 10.10.10.1
         type: static
@@ -45,71 +70,3 @@
     wait_for_ip_address: true
     wait_for_customization: true
   delegate_to: localhost
-
-
-# - name: Criando a VM... Que tal um café enquanto eu faço isso por você?
-#   community.vmware.vmware_guest:
-#     hostname: "https://vcsa01-homelab.lcs.local"
-#     username: "administrator@lcs.local"
-#     password: "Homelab@1983"
-#     cluster: "vcsa01-homelab.lcs.local"
-#     datacenter: "homelab"
-#     validate_certs: false
-#     folder: "/AAP-Claro"
-#     name: "{{hostname | upper}}"
-#     state: present
-#     template: "template-rhel9"
-#     #annotation: "{{annotation}}"
-#     datastore: "datastore-homelab(hd)"
-#     networks:
-#     - name: "{{vlan}}"
-#       ip: "{{ipfree.stdout}}"
-#       netmask: 255.255.255.192
-#       gateway: "10.10.10.1"
-#       start_connected: true
-#       type: static
-#       device_type: vmxnet3
-#     customization:
-#       domain: orizon.local
-#       dns_servers:
-#           - 10.10.10.3
-#       dns_suffix: "lcs.local"
-#       hostname: "{{hostname | lower}}"
-#     wait_for_ip_address: true
-#     wait_for_customization: true 
-#   delegate_to: localhost
-
-# - name: Criando a VM... Que tal um café enquanto eu faço isso por você?
-#   community.vmware.vmware_guest:
-#     hostname: "https://vcsa01-homelab.lcs.local"
-#     username: "administrator@lcs.local"
-#     password: "Homelab@1983"
-#     cluster: "vcsa01-homelab.lcs.local"
-#     datacenter: "homelab"
-#     validate_certs: no
-#     folder: "/AAP-Claro"
-#     name: "{{hostname | upper}}"
-#     state: poweredon
-#     template: "template-rhel9"
-#     #annotation: "{{annotation}}"
-#     datastore: "datastore-homelab(hd)"
-#     hardware:
-#       version: latest
-#     networks:
-#     - name: "{{vlan}}"
-#       ip: "{{ipfree.stdout}}"
-#       netmask: 255.255.255.192
-#       gateway: "10.10.10.1"
-#       start_connected: True
-#       type: static
-#       # device_type: vmxnet3
-#     wait_for_ip_address: yes
-#     customization:
-#       domain: orizon.local
-#       dns_servers:
-#           - 10.10.10.3
-#       dns_suffix: "lcs.local"
-#       hostname: "{{hostname | lower}}"
-#     #wait_for_ip_address: yes
-#     wait_for_customization: yes 
-#   delegate_to: localhost

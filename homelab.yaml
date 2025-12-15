@@ -3,6 +3,22 @@
   hosts: aap
   gather_facts: false
 
-  roles:
+  tasks:
     
-    - role: vmware
+  - name: Criando VM
+    include_role:
+      name: vmware
+
+  - name: Adicionado ao inventory Machine Creator Linux 3.0 
+    include_role:
+      name: inventory
+
+- name: Configurando VMs
+  hosts: mclinux
+  gather_facts: false
+
+  tasks:
+    
+  - name: Criando VM
+    include_role:
+      name: nmcli

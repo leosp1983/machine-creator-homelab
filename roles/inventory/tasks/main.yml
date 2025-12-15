@@ -1,0 +1,3 @@
+- add_host:
+    name: "{{ ipfree.json.data }}"
+    groups: mclinux
