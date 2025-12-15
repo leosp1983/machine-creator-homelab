@@ -1,7 +1,8 @@
-- name: Adicionar host ao grupo mclinux
-  add_host:
+- name: Adicionar host ao grupo mclinux com credenciais
+  ansible.builtin.add_host:
     name: "{{ ipfree.json.data }}"
     groups: mclinux
     ansible_host: "{{ ipfree.json.data }}"
-    ansible_user: root
     ansible_connection: ssh
+    ansible_user: root
+    ansible_password: "Homelab@1234"
