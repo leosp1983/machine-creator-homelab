@@ -1,0 +1,58 @@
+- name: Limpando o cache do yum
+  ansible.builtin.shell: |
+    yum clean all && subscription-manager refresh && rm -rf /var/cache/yum/ && \
+    subscription-manager remove --all && subscription-manager unregister && \
+    subscription-manager clean || /bin/true
+
+- name: Registrando o sistema no Red Hat Subscription Manager
+  ansible.builtin.shell: |
+    subscription-manager register --force --username=leosp1983 --password=Leonardo@1983 || /bin/true
+
+- name: configurando o arquivo .bashrc
+  ansible.builtin.template:
+    src: templates/.bashrc.j2
+    dest: "{{item}}"
+    owner: root
+    group: root
+    mode: "0644"
+  loop:
+    - /root/.bashrc
+    # - /home/svc_aap/.bashrc
+
+- name: Configurando o arquivo /etc/selinux/config
+  ansible.builtin.lineinfile:
+    path: /etc/selinux/config
+    regexp: '^SELINUX='
+    line: SELINUX=disabled
+
+- name: Desabilitando o SELINUX
+  ansible.posix.selinux:
+    state: disabled
+
+- name: Desabilitando o firewall
+  ansible.builtin.service:
+    name: firewalld.service
+    state: stopped
+    enabled: false
+
+- name: Configurando o banner de login
+  ansible.builtin.template:
+    src: dynmotdrhel9.sh.orz
+    dest: /etc/profile.d/dynmotdrhel9.sh
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Configurando o banner de login
+  ansible.builtin.copy:
+    dest: "/etc/profile.d/serverdata"
+    content: |
+      AMBIENTE:Produção
+      SOLUCAO:Ansible Automation Platform
+      DESCRICAO:<INFORMAR>
+      VIP:<INFORMAR>
+      TIPO:Virtual
+      HOST:spitfire03.corp.clarobr
+      CRIADO:IRIS COSTA DEBERGES
+      CHAMADO:PDST-1707929
+      DOCUMENTACAO:https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.5/

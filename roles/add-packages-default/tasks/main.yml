@@ -1,0 +1,79 @@
+- name: Instalando epel-release
+  ansible.builtin.dnf:
+    name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
+    state: present
+
+- name: Instalando pacotes default necessários para administração do cluster AAP
+  ansible.builtin.dnf:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - rhel-system-roles
+    - yum-utils
+    - vim
+    - sshpass
+    - bind-utils
+    - bash-completion
+    - wget
+    - rsync
+    - ansible-core
+    - cockpit
+    - jq
+    - htop
+    - iftop
+    - iotop
+    - sysstat
+    - telnet
+    - tcpdump
+    - net-snmp
+    - perl
+    - chrony
+    - unzip
+    - git
+    - net-tools
+    
+- name: Removendo o pacote epel-release
+  ansible.builtin.dnf:
+    name: epel-release
+    state: absent
+
+- name: Instalando pacotes default necessários para administração dos playbooks
+  ansible.builtin.dnf:
+    name: "{{ item }}"
+    state: present
+    enablerepo: ansible-automation-platform-2.5-for-rhel-9-x86_64-rpms
+  loop:
+    - ansible-navigator
+    - ansible-builder
+  run_once: true
+
+- name: Configurando /etc/issue.cockpit
+  ansible.builtin.copy:
+    content: |
+      THIS SYSTEM IS PROVIDED FOR USE BY AUTHORIZED USERS ONLY.
+      ALERT! You are entering into a secured area! Your IP, Login Time, Username has been noted and has been sent to the server administrator! All activities on this system are logged.  Unauthorized access will be fully investigated and reported to the appropriate law enforcement agencies.
+    dest: /etc/issue.cockpit
+    owner: root
+    group: root
+    mode: u+rw,g-wx,o-wx
+
+- name: Configurando o Banner do cockpit
+  ansible.builtin.copy:
+    content: |
+      [Session]
+      Banner=/etc/issue.cockpit
+    dest: /etc/cockpit/cockpit.conf
+    owner: root
+    group: root
+    mode: u+rw,g-wx,o-wx
+
+- name: Habilitando o cockpit
+  ansible.builtin.systemd_service:
+    name: cockpit
+    state: started
+    enabled: true
+
+- name: Fazendo update dos pacotes
+  yum:
+    name: "*"
+    state: latest

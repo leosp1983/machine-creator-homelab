@@ -1,0 +1,79 @@
+---
+# task excutado na bastion
+- name: Verificar se chave SSH pública já existe na bastion
+  ansible.builtin.stat:
+    path: "~/.ssh/id_rsa.pub"
+  delegate_to: 10.10.10.35
+  run_once: true
+  register: chave_pub
+
+# task excutado na bastion
+- name: Gerar par de chaves SSH se não existir na bastion
+  ansible.builtin.command:
+    cmd: ssh-keygen -t rsa -b 4096 -f
+  delegate_to: 10.10.10.35
+  run_once: true
+  when: not chave_pub.stat.exists
+
+# task excutado na bastion
+- name: Ler chave pública da bastion
+  ansible.builtin.slurp:
+    src: "~/.ssh/id_rsa.pub"
+  delegate_to: 10.10.10.35
+  run_once: true
+  register: ssh_key_file
+
+# task excutado na bastion
+- name: Definir variável com conteúdo da chave pública da bastion
+  ansible.builtin.set_fact:
+    ssh_pub_key: "{{ ssh_key_file['content'] | b64decode }}"
+  delegate_to: 10.10.10.35
+  run_once: true
+
+- name: Gerar hash da senha
+  ansible.builtin.set_fact:
+    newpass_hash: "{{ 'homelab@1983' | password_hash('sha512') }}"
+
+- name: Criando usuário
+  ansible.builtin.user:
+    name: "svc_aap"
+    password: "{{newpass_hash}}"
+    update_password: on_create
+    comment: "Usuario de instalacao do AAP"
+    shell: /bin/bash
+    generate_ssh_key: true
+    ssh_key_bits: 4096
+    ssh_key_file: .ssh/id_rsa
+    create_home: true
+  register: sshkey
+
+#chave publica da bastion
+- name: Adicionando chave SSH pública da bastion nos servidores
+  ansible.builtin.blockinfile:
+    state: present
+    path: "{{sshkey.home}}/.ssh/authorized_keys"
+    block: |
+      {{ssh_pub_key}}
+    marker: "# <!-- {mark} ANSIBLE MANAGED BLOCK aap -->"
+    backup: true
+    create: true
+    owner: "{{sshkey.name}}"
+    mode: '0644'
+
+- name: Adicionando arquivo de sudoers
+  ansible.builtin.blockinfile:
+    dest: /etc/sudoers.d/admin_svc_aap
+    marker: "# {mark} ANSIBLE CONFIG sudoers"
+    state: present
+    block: |
+      svc_aap ALL=(ALL) NOPASSWD: ALL
+      Defaults:svc_aap !requiretty, !lecture
+    create: true
+    mode: '0700'
+
+- name: Garantindo que o SSH esteja configurado para ignorar a verificação da chave do host.
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/ssh_config
+    regexp: '^#?StrictHostKeyChecking'
+    line: 'StrictHostKeyChecking no'
+    state: present

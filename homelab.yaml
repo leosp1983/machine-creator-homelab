@@ -22,3 +22,7 @@
   - name: Criando VM
     include_role:
       name: nmcli
+
+  - name: Criando VM
+    include_role:
+      name: general_config

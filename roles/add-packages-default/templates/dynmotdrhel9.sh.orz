@@ -1,0 +1,93 @@
+#!/bin/bash
+
+# Colors
+gray='\033[1;30m'
+blue='\033[1;34m'
+green='\033[1;32m'
+white='\033[1;37m'
+dkgreen='\033[0;36m'
+pink='\033[0;35m'
+red='\033[0;31m'
+whitered='\033[1;31m'
+nocolor='\033[0;38m'
+
+AMBIENTE=`cat /etc/profile.d/serverdata |grep AMBIENTE |cut -d: -f2`
+SOLUCAO=`cat /etc/profile.d/serverdata |grep SOLUCAO |cut -d: -f2`
+DESCRICAO=`cat /etc/profile.d/serverdata |grep DESCRICAO |cut -d: -f2`
+VIP=`cat /etc/profile.d/serverdata |grep VIP |cut -d: -f2`
+TIPO=`cat /etc/profile.d/serverdata |grep TIPO |cut -d: -f2`
+CRIADO=`cat /etc/profile.d/serverdata |grep CRIADO |cut -d: -f2`
+CHAMADO=`cat /etc/profile.d/serverdata |grep CHAMADO |cut -d: -f2`
+HOST=`cat /etc/profile.d/serverdata |grep HOST |cut -d: -f2`
+DOCUMENTACAO=`cat /etc/profile.d/serverdata |grep DOCUMENTACAO |cut -d: -f2-10`
+IP=`which ip`
+
+# Testa se tem ip VIP e está ativo no servidor
+CONN=$(netstat -atun | grep ":8080" | egrep "(ESTABELECIDA|ESTABLISHED)" | wc -l)
+if [ $CONN -gt "20" ]; then
+        STATUS="PRODUCAO"
+else
+        STATUS="STANDBY"
+fi
+
+# Coleta os nomes das interfaces presentes no servidor RHEL7
+if [ `uname -r | grep -o "el[0-9]"` == "el9" ]; then
+        INTERFACES=`${IP} link | egrep '^[0-9]' | egrep -v 'lo: ' | cut -d: -f2 | cut -b2-7`
+else
+        INTERFACES=`ifconfig | grep -v "lo" | grep "^[a-z]" | awk '{print $1}'`
+fi
+
+# Testa se tem ip VIP e está ativo no servidor
+IPVIP=`ip addr | grep ${VIP} 2>/dev/null`
+
+if [ "${IPVIP}" == "" ]; then
+        TESTAVIP="${red}(NÃO ATIVO NESTE SERVIDOR)"
+else
+        TESTAVIP="${green}(ATIVO NESTE SERVIDOR)"
+fi
+
+if [ "${VIP}" == "" ]; then
+        PRINTVIP=""
+else
+        PRINTVIP="\n${pink}IP VIP:.....: ${dkgreen}${VIP} ${TESTAVIP}"
+fi
+
+clear
+echo -e "${red}
+                                    ██        ██
+                                    ██      ██
+                                    ██    ██
+
+   █████╗██╗     █████╗ ██████╗  ██████╗
+  ██╔═══╝██║    ██╔══██╗██╔══██╗██╔═══██╗ ██████
+  ██║    ██║    ███████║██████╔╝██║   ██║
+  ██║    ██║    ██╔══██║██║██ ║ ██║   ██║
+  ╚█████╗██████╗██║  ██║██║ ██║ ╚██████╔╝
+   ╚════╝╚═════╝╚═╝  ╚═╝╚═╝ ╚═╝  ╚═════╝
+
+${pink}Hostname....: ${white}`hostname`
+${pink}Ambiente....: ${white}${AMBIENTE}
+${pink}Solucao.....: ${white}${SOLUCAO}
+${pink}Descricao...: ${white}${DESCRICAO}
+${pink}Distribuicao: ${white}`cat /etc/redhat-release`
+${pink}Kernel......: ${white}`uname -r`
+$(
+if [ `uname -r | grep -o "el[0-9]"` == "el9" ]; then
+        for interface in `echo $INTERFACES`; do
+                echo "${pink}IP $interface...: ${white}`ip addr | egrep 'inet ' | grep $interface | awk '{print $2}'`"
+        done
+else
+        for interface in `echo $INTERFACES`; do
+                echo "${pink}IP $interface.....: ${white}`ifconfig $interface | grep 'inet ' | awk '{print $2}' | cut -d: -f2`"
+        done
+fi
+) ${PRINTVIP}
+${pink}Tipo........: ${white}${TIPO}
+${pink}vCenter.....: ${white}${HOST}
+${pink}Criado por..: ${white}${CRIADO}
+${pink}Chamado.....: ${white}${CHAMADO}
+${pink}vCPU........: ${white}`cat /proc/cpuinfo | grep "processor" | sort | uniq | wc -l `
+${pink}Memoria.....: ${white}`free -m |grep Mem |awk '{print $2}'` Mb
+${pink}Uptime......: ${white}`uptime |awk '{print $2, $3, $4, $5, $6}' |cut -d, -f1-2`
+${pink}Documentacao: ${white}${DOCUMENTACAO}
+${nocolor}"
