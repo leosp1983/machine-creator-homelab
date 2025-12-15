@@ -70,3 +70,25 @@
     wait_for_ip_address: true
     wait_for_customization: true
   delegate_to: localhost
+
+- name: Ajustar rede via VMware Guest Operations
+  community.vmware.vmware_vm_shell:
+    hostname: vcsa01-homelab.lcs.local
+    username: administrator@lcs.local
+    password: Homelab@1983
+    validate_certs: false
+    vm_id: "{{ hostname | upper }}"
+    vm_username: root
+    vm_password: "Homelab@1234"
+    vm_shell: /bin/sh
+    vm_shell_args: >
+      nmcli connection delete ens33 || true;
+      for c in $(nmcli -t -f NAME connection show | grep -i vmware); do nmcli connection delete "$c"; done;
+      nmcli connection add type ethernet ifname ens33 con-name ens33
+      ipv4.method manual ipv4.addresses {{ ipfree.json.data }}/26
+      ipv4.gateway 10.10.10.1
+      ipv4.dns 10.10.10.3
+      ipv4.dns-search lcs.local
+      connection.autoconnect yes;
+      nmcli connection reload;
+      nmcli device connect ens33;
