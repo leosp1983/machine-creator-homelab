@@ -6,7 +6,7 @@
   register: ipfree
   delegate_to: localhost
 
-- name: Criar VM a partir do template (com limpeza e padronização de rede)
+- name: Criar VM a partir do template
   community.vmware.vmware_guest:
     hostname: vcsa01-homelab.lcs.local
     username: administrator@lcs.local
@@ -31,20 +31,6 @@
       dns_servers:
         - 10.10.10.3
       dns_suffix: lcs.local
-      script_text: |
-        #!/bin/bash
-        set -euo pipefail
-
-        nmcli connection delete ens33 || true
-        nmcli -t -f NAME connection show | grep -i vmware | while read -r CONN; do
-          nmcli connection delete "$CONN" || true
-        done
-
-        nmcli connection add con-name ens33 ifname ens33 type ethernet \
-        ipv4.method manual ipv4.addresses "{{ ipfree.stdout }}/26" ipv4.gateway 10.10.10.1 \
-        ipv4.dns 10.10.10.3 ipv4.dns-search lcs.local connection.autoconnect yes
-
-        nmcli connection up ens33 || true
   delegate_to: localhost
 
 - name: Ligar VM e aguardar IP

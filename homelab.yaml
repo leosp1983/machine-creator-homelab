@@ -1,6 +1,6 @@
 ---
 - name: Configurando VMs
-  hosts: labs
+  hosts: aap
   gather_facts: false
 
   roles:
