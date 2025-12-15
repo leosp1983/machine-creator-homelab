@@ -30,3 +30,7 @@
   - name: add-packages-default
     include_role:
       name: add-packages-default
+
+  - name: timedatectl
+    include_role:
+      name: timedatectl
