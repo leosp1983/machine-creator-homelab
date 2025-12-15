@@ -15,3 +15,7 @@
     name: NetworkManager
     state: started
     enabled: true
+
+- name: Output do ajuste de rede
+  ansible.builtin.debug:
+    var: "{{ network_fix.stdout_lines }}"
