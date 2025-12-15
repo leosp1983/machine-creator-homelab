@@ -34,3 +34,7 @@
   - name: timedatectl
     include_role:
       name: timedatectl
+
+  - name: ad-homelab
+    include_role:
+      name: ad-homelab

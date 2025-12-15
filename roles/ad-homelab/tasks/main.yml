@@ -1,0 +1,91 @@
+- name: Instalando os pacotes necessários para o pip
+  ansible.builtin.dnf:
+    name:
+      - authconfig
+      - python3-pip
+
+- name: Instalando o pexpect
+  ansible.builtin.pip:
+    name: pexpect
+    executable: pip3
+
+- name: Instalando os pacotes necessários para o realmd
+  ansible.builtin.dnf:
+    name:
+    - realmd
+    - sssd
+    - oddjob
+    - oddjob-mkhomedir
+    - adcli
+    - samba-common
+    - samba-common-tools
+    - krb5-workstation
+
+- name: Inserindo no domínio lcs.local
+  ansible.builtin.expect:
+    command: /bin/bash -c "/usr/sbin/adcli join --domain=lcs.local --domain-controller=10.10.10.3 --login-user=lcsilva"
+    responses:
+      Password for *: "Homelab@1234"
+    timeout: 300
+
+- name: Configurando o krb5.conf
+  ansible.builtin.template:
+    src: krb5.conf.j2
+    dest: /etc/krb5.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Configurando o /etc/pam.d/password-auth-ac
+  ansible.builtin.template:
+    src: password-auth-ac.orz
+    dest: /etc/pam.d/password-auth-ac
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Configurando o /etc/ssh/sshd_config
+  ansible.builtin.template:
+    src: sshd_config.j2
+    dest: /etc/ssh/sshd_config
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: Configurando o /etc/sssd/sssd.conf
+  ansible.builtin.template:
+    src: sssd.conf.orz
+    dest: /etc/sssd/sssd.conf
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: Configurando o /etc/sudoers
+  ansible.builtin.template:
+    src: sudoers.j2
+    dest: /etc/sudoers
+    owner: root
+    group: root
+    mode: '0440'
+
+- name: Configurando o /etc/pam.d/system-auth-ac
+  ansible.builtin.template:
+    src: system-auth-ac.orz
+    dest: /etc/pam.d/system-auth-ac
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Habilitando a criação automática do diretório home e definindo sssd como a base da autenticação
+  ansible.builtin.command: authselect select sssd with-mkhomedir --force
+
+- name: Realizando o restart dos serviços
+  ansible.builtin.service:
+    name: "{{ item }}"
+    enabled: yes
+    state: restarted
+  with_items:
+    - realmd
+    - sssd
+    - oddjobd
+    - sshd
