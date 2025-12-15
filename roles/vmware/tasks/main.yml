@@ -6,37 +6,110 @@
   register: ipfree
   delegate_to: localhost
 
-- name: Criando a VM... Que tal um café enquanto eu faço isso por você?
+- name: Criar VM a partir do template
   community.vmware.vmware_guest:
-    hostname: "https://vcsa01-homelab.lcs.local"
-    username: "administrator@lcs.local"
-    password: "Homelab@1983"
-    cluster: "vcsa01-homelab.lcs.local"
-    datacenter: "homelab"
-    validate_certs: no
+    hostname: vcsa01-homelab.lcs.local
+    username: administrator@lcs.local
+    password: Homelab@1983
+    validate_certs: false
+    datacenter: homelab
     folder: "/AAP-Claro"
-    name: "{{hostname | upper}}"
-    state: poweredon
-    template: "template-rhel9"
-    #annotation: "{{annotation}}"
+    name: "{{ hostname | upper }}"
+    template: template-rhel9
     datastore: "datastore-homelab(hd)"
-    hardware:
-      version: latest
+    state: present
     networks:
-    - name: "{{vlan}}"
-      ip: "{{ipfree.stdout}}"
-      netmask: 255.255.255.192
-      gateway: "10.10.10.1"
-      start_connected: True
-      type: static
-      # device_type: vmxnet3
-    wait_for_ip_address: yes
+      - name: vlan-homelab
+        ip: "{{ ipfree.stdout }}"
+        netmask: 255.255.255.192
+        gateway: 10.10.10.1
+        type: static
+        device_type: vmxnet3
     customization:
-      domain: orizon.local
+      hostname: "{{ hostname | lower }}"
+      domain: lcs.local
       dns_servers:
-          - 10.10.10.3
-      dns_suffix: "lcs.local"
-      hostname: "{{hostname | lower}}"
-    #wait_for_ip_address: yes
-    wait_for_customization: yes 
+        - 10.10.10.3
+      dns_suffix: lcs.local
   delegate_to: localhost
+
+- name: Ligar VM e aguardar IP
+  community.vmware.vmware_guest:
+    hostname: vcsa01-homelab.lcs.local
+    username: administrator@lcs.local
+    password: Homelab@1983
+    validate_certs: false
+    datacenter: homelab
+    name: "{{ hostname | upper }}"
+    state: poweredon
+    wait_for_ip_address: true
+    wait_for_customization: true
+  delegate_to: localhost
+
+
+# - name: Criando a VM... Que tal um café enquanto eu faço isso por você?
+#   community.vmware.vmware_guest:
+#     hostname: "https://vcsa01-homelab.lcs.local"
+#     username: "administrator@lcs.local"
+#     password: "Homelab@1983"
+#     cluster: "vcsa01-homelab.lcs.local"
+#     datacenter: "homelab"
+#     validate_certs: false
+#     folder: "/AAP-Claro"
+#     name: "{{hostname | upper}}"
+#     state: present
+#     template: "template-rhel9"
+#     #annotation: "{{annotation}}"
+#     datastore: "datastore-homelab(hd)"
+#     networks:
+#     - name: "{{vlan}}"
+#       ip: "{{ipfree.stdout}}"
+#       netmask: 255.255.255.192
+#       gateway: "10.10.10.1"
+#       start_connected: true
+#       type: static
+#       device_type: vmxnet3
+#     customization:
+#       domain: orizon.local
+#       dns_servers:
+#           - 10.10.10.3
+#       dns_suffix: "lcs.local"
+#       hostname: "{{hostname | lower}}"
+#     wait_for_ip_address: true
+#     wait_for_customization: true 
+#   delegate_to: localhost
+
+# - name: Criando a VM... Que tal um café enquanto eu faço isso por você?
+#   community.vmware.vmware_guest:
+#     hostname: "https://vcsa01-homelab.lcs.local"
+#     username: "administrator@lcs.local"
+#     password: "Homelab@1983"
+#     cluster: "vcsa01-homelab.lcs.local"
+#     datacenter: "homelab"
+#     validate_certs: no
+#     folder: "/AAP-Claro"
+#     name: "{{hostname | upper}}"
+#     state: poweredon
+#     template: "template-rhel9"
+#     #annotation: "{{annotation}}"
+#     datastore: "datastore-homelab(hd)"
+#     hardware:
+#       version: latest
+#     networks:
+#     - name: "{{vlan}}"
+#       ip: "{{ipfree.stdout}}"
+#       netmask: 255.255.255.192
+#       gateway: "10.10.10.1"
+#       start_connected: True
+#       type: static
+#       # device_type: vmxnet3
+#     wait_for_ip_address: yes
+#     customization:
+#       domain: orizon.local
+#       dns_servers:
+#           - 10.10.10.3
+#       dns_suffix: "lcs.local"
+#       hostname: "{{hostname | lower}}"
+#     #wait_for_ip_address: yes
+#     wait_for_customization: yes 
+#   delegate_to: localhost
