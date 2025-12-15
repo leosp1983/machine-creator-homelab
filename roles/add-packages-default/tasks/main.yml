@@ -75,6 +75,6 @@
     enabled: true
 
 - name: Fazendo update dos pacotes
-  yum:
+  ansible.builtin.dnf:
     name: "*"
     state: latest

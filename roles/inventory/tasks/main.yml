@@ -3,6 +3,7 @@
     name: "{{ ipfree.json.data }}"
     groups: mclinux
     ansible_host: "{{ ipfree.json.data }}"
+    provisioned_ip: "{{ ipfree.json.data }}"
     ansible_connection: ssh
     ansible_user: root
     ansible_password: "Homelab@1234"
