@@ -53,6 +53,6 @@
       VIP:<INFORMAR>
       TIPO:Virtual
       HOST: https://vcsa01-homelab.lcs.local 
-      CRIADO: "{{ tower_user_name }}"
+      CRIADO: {{tower_user_name}}
       CHAMADO: 123456789
       DOCUMENTACAO:https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.5/

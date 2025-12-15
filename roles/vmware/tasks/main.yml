@@ -43,10 +43,10 @@
         password: Homelab@1983
         validate_certs: false
         datacenter: homelab
-        folder: "/AAP-Claro"
+        folder: "{{ vm_folder }}"
         name: "{{ hostname | upper }}"
-        template: template-rhel9
-        datastore: "datastore-homelab(hd)"
+        template: "{{ vm_template }}"
+        datastore: "{{ vm_datastore }}"
         state: present
         networks:
           - name: vlan-homelab
