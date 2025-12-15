@@ -13,12 +13,12 @@
     include_role:
       name: inventory
 
-# - name: Configurando VMs
-#   hosts: mclinux
-#   gather_facts: false
+- name: Configurando VMs
+  hosts: mclinux
+  gather_facts: false
 
-#   tasks:
+  tasks:
     
-#   - name: Criando VM
-#     include_role:
-#       name: nmcli
+  - name: Criando VM
+    include_role:
+      name: nmcli

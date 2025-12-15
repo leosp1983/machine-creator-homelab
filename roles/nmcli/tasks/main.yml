@@ -6,12 +6,12 @@
     group: root
     mode: '0755'
 
+- name: Ajustar rede via script (NetworkManager only)
+  ansible.builtin.shell: /root/nmcli.sh
+  register: network_fix
+
 - name: Garantir NetworkManager ativo
   ansible.builtin.service:
     name: NetworkManager
     state: started
     enabled: true
-
-- name: Ajustar rede via script (NetworkManager only)
-  ansible.builtin.script: /root/nmcli.sh
-  register: network_fix

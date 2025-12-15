@@ -1,8 +1,7 @@
 #!/bin/bash
-set -euo pipefail
 
 IFACE="ens33"
-IPADDR="10.10.10.9/26"
+IPADDR="{{ ipfree.json.data }}/26"
 GATEWAY="10.10.10.1"
 DNS="10.10.10.3"
 DOMAIN="lcs.local"
@@ -21,16 +20,8 @@ done
 echo "[INFO] Criando conexão nova via nmcli..."
 
 # Criando conexão
-nmcli connection add \
-  type ethernet \
-  ifname "${IFACE}" \
-  con-name "${IFACE}" \
-  ipv4.method manual \
-  ipv4.addresses "${IPADDR}" \
-  ipv4.gateway "${GATEWAY}" \
-  ipv4.dns "${DNS}" \
-  ipv4.dns-search "${DOMAIN}" \
-  connection.autoconnect yes
+nmcli connection add con-name "${IFACE}" ifname "${IFACE}" type ethernet ipv4.method manual \
+ipv4.addresses "${IPADDR}" ipv4.gateway "${GATEWAY}" ipv4.dns "${DNS}" ipv4.dns-search "${DOMAIN}"  connection.autoconnect yes
 
 # Sobubindo a conexão
 nmcli connection up "${IFACE}"
