@@ -38,3 +38,7 @@
   - name: ad-homelab
     include_role:
       name: ad-homelab
+
+  - name: create_user
+    include_role:
+      name: create_user
