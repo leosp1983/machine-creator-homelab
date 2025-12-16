@@ -23,9 +23,9 @@
     include_role:
       name: nmcli
 
-  - name: create_user
-    include_role:
-      name: create_user
+  # - name: create_user
+  #   include_role:
+  #     name: create_user
 
   - name: general_config
     include_role:

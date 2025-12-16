@@ -37,14 +37,15 @@
 - name: Criando usuário
   ansible.builtin.user:
     name: "svc_aap"
-    password: "{{newpass_hash}}"
-    update_password: on_create
     comment: "Usuario de instalacao do AAP"
     shell: /bin/bash
+    create_home: true
+    password: "{{newpass_hash}}"
+    update_password: on_create
     generate_ssh_key: true
     ssh_key_bits: 4096
     ssh_key_file: .ssh/id_rsa
-    create_home: true
+    state: present
   register: sshkey
 
 #chave publica da bastion
