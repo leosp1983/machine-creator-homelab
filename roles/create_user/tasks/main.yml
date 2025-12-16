@@ -10,7 +10,7 @@
 # task excutado na bastion
 - name: Gerar par de chaves SSH se não existir na bastion
   ansible.builtin.command:
-    cmd: ssh-keygen -t rsa -b 4096
+    cmd: ssh-keygen -t rsa -b 4096 -f /root/.ssh/id_rsa -N ""
   delegate_to: 10.10.10.9
   run_once: true
   when: not chave_pub.stat.exists
