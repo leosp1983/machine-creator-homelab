@@ -17,7 +17,7 @@
     mode: "0644"
   loop:
     - /root/.bashrc
-    # - /home/svc_aap/.bashrc
+    - /home/svc_aap/.bashrc
 
 - name: Configurando o arquivo /etc/selinux/config
   ansible.builtin.lineinfile:
