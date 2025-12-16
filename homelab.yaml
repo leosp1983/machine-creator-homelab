@@ -23,6 +23,10 @@
     include_role:
       name: nmcli
 
+  - name: create_user
+    include_role:
+      name: create_user
+
   - name: general_config
     include_role:
       name: general_config
@@ -38,7 +42,3 @@
   - name: ad-homelab
     include_role:
       name: ad-homelab
-
-  - name: create_user
-    include_role:
-      name: create_user
