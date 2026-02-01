@@ -44,7 +44,7 @@
   ansible.builtin.expect:
     command: /bin/bash -c "/usr/sbin/adcli join --domain=lcs.local --domain-controller=10.10.10.3 --login-user=lcsilva"
     responses:
-      Password for *: "Homelab@1234"
+      Password for *: "Homelab@1983"
     timeout: 300
 
 - name: Configurando o krb5.conf
