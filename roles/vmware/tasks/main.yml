@@ -1,7 +1,7 @@
 - block:
     - name: Buscar IP livre no phpIPAM
       ansible.builtin.uri:
-        url: https://ipam-homelab.lcs.local/api/aap/subnets/7/first_free/
+        url: https://phpipam-phpipam.apps.ocp-homelab.lcs.local/api/aap/subnets/7/first_free/
         method: GET
         headers:
           token: NuU89qzimM-OHAtSiJzYL9SW-tG-ZkNV
@@ -13,7 +13,7 @@
 
     - name: Reservar IP no phpIPAM
       ansible.builtin.uri:
-        url: https://ipam-homelab.lcs.local/api/aap/addresses/
+        url: https://phpipam-phpipam.apps.ocp-homelab.lcs.local/api/aap/addresses/
         method: POST
         headers:
           token: NuU89qzimM-OHAtSiJzYL9SW-tG-ZkNV
@@ -79,7 +79,7 @@
   rescue:
     - name: Rollback - deletar IP reservado no phpIPAM
       ansible.builtin.uri:
-        url: https://ipam-homelab.lcs.local/api/aap/addresses/{{ ipam_address_id }}/
+        url: https://phpipam-phpipam.apps.ocp-homelab.lcs.local/api/aap/addresses/{{ ipam_address_id }}/
         method: DELETE
         headers:
           token: NuU89qzimM-OHAtSiJzYL9SW-tG-ZkNV
