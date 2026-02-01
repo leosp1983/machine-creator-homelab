@@ -43,6 +43,7 @@
         password: Homelab@1983
         validate_certs: false
         datacenter: homelab
+        cluster: homelab
         folder: "{{ vm_folder }}"
         name: "{{ hostname | upper }}"
         template: "{{ vm_template }}"
