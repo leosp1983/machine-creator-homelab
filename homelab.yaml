@@ -15,7 +15,7 @@
 
 - name: Configurando VMs
   hosts: mclinux
-  gather_facts: false
+  gather_facts: true
 
   tasks:
     

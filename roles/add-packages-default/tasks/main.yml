@@ -3,6 +3,14 @@
     name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
     state: present
     disable_gpg_check: true
+  when: ansible_facts['distribution_major_version'] | int == 9
+
+- name: Instalando epel-release em RHEL 10
+  ansible.builtin.dnf:
+    name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-10.noarch.rpm
+    state: present
+    disable_gpg_check: true
+  when: ansible_facts['distribution_major_version'] | int == 10
 
 - name: Instalando pacotes default necessários para administração do cluster AAP
   ansible.builtin.dnf:
@@ -47,6 +55,18 @@
     - ansible-navigator
     - ansible-builder
   run_once: true
+  when: ansible_facts['distribution_major_version'] | int == 9
+
+- name: Instalando pacotes default necessários para administração dos playbooks em RHEL 8
+  ansible.builtin.dnf:
+    name: "{{ item }}"
+    state: present
+    enablerepo: ansible-automation-platform-2.6-for-rhel-10-x86_64-rpms
+  loop:
+    - ansible-navigator
+    - ansible-builder
+  run_once: true
+  when: ansible_facts['distribution_major_version'] | int == 10
 
 - name: Configurando /etc/issue.cockpit
   ansible.builtin.copy:
