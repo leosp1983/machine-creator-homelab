@@ -1,13 +1,31 @@
+- name: Instalar pacotes de sistema e Python via RPM (RHEL 10)
+  ansible.builtin.dnf:
+    name:
+      - realmd
+      - sssd
+      - oddjob
+      - oddjob-mkhomedir
+      - adcli
+      - samba-common-tools
+      - krb5-workstation
+      - authselect        # Substitui o obsoleto authconfig
+      - python3-pexpect   # Instalação nativa (Recomendado vs PIP)
+      # - python3-pip     # (Opcional) Apenas se estritamente necessário para outros pacotes
+    state: present
+  when: ansible_facts['distribution_major_version'] | int == 10
+
 - name: Instalando os pacotes necessários para o pip
   ansible.builtin.dnf:
     name:
       - authconfig
       - python3-pip
+  when: ansible_facts['distribution_major_version'] | int == 9
 
 - name: Instalando o pexpect
   ansible.builtin.pip:
     name: pexpect
     executable: pip3
+  when: ansible_facts['distribution_major_version'] | int == 9
 
 - name: Instalando os pacotes necessários para o realmd
   ansible.builtin.dnf:
@@ -20,6 +38,7 @@
     - samba-common
     - samba-common-tools
     - krb5-workstation
+  when: ansible_facts['distribution_major_version'] | int == 9
 
 - name: Inserindo no domínio lcs.local
   ansible.builtin.expect:

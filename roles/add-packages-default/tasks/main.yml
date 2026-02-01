@@ -46,7 +46,7 @@
     name: epel-release
     state: absent
 
-- name: Instalando pacotes default necessários para administração dos playbooks
+- name: Instalando pacotes default necessários para administração dos playbooks em RHEL 10
   ansible.builtin.dnf:
     name: "{{ item }}"
     state: present
@@ -57,7 +57,7 @@
   run_once: true
   when: ansible_facts['distribution_major_version'] | int == 9
 
-- name: Instalando pacotes default necessários para administração dos playbooks em RHEL 8
+- name: Instalando pacotes default necessários para administração dos playbooks em RHEL 10
   ansible.builtin.dnf:
     name: "{{ item }}"
     state: present
