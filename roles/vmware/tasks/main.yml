@@ -4,7 +4,7 @@
         url: https://phpipam-phpipam.apps.ocp-homelab.lcs.local/api/aap/subnets/7/first_free/
         method: GET
         headers:
-          token: 0Ldu6kFpP_RnXCJMzfQQIQzVk-bIlrug
+          token: 57zYqRyD_kxGy1I2-p1aHtTqujCcs3Bf
         validate_certs: false
         return_content: true
       register: ipfree
@@ -16,7 +16,7 @@
         url: https://phpipam-phpipam.apps.ocp-homelab.lcs.local/api/aap/addresses/
         method: POST
         headers:
-          token: 0Ldu6kFpP_RnXCJMzfQQIQzVk-bIlrug
+          token: 57zYqRyD_kxGy1I2-p1aHtTqujCcs3Bf
           Content-Type: application/json
         validate_certs: false
         body_format: json
@@ -83,7 +83,7 @@
         url: https://phpipam-phpipam.apps.ocp-homelab.lcs.local/api/aap/addresses/{{ ipam_address_id }}/
         method: DELETE
         headers:
-          token: 0Ldu6kFpP_RnXCJMzfQQIQzVk-bIlrug
+          token: 57zYqRyD_kxGy1I2-p1aHtTqujCcs3Bf
         validate_certs: false
         status_code:
           - 200
