@@ -50,7 +50,7 @@
         datastore: "{{ vm_datastore }}"
         state: present
         networks:
-          - name: vlan-homelab
+          - name: VM Network
             ip: "{{ ipfree.json.data }}"
             netmask: 255.255.255.192
             gateway: 10.10.10.1
