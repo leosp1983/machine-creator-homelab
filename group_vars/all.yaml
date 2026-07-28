@@ -1,0 +1,22 @@
+---
+# Variaveis globais — nunca hardcode credenciais, defina via env var ou credencial no AAP.
+
+# Token de API do phpIPAM
+phpipam_token: "{{ lookup('env', 'PHPIPAM_TOKEN') }}"
+
+# Credenciais do vCenter
+vcenter_username: "{{ lookup('env', 'VCENTER_USERNAME') }}"
+vcenter_password: "{{ lookup('env', 'VCENTER_PASSWORD') }}"
+
+# Senha inicial (root) usada para conectar via SSH na VM recém-criada
+vm_initial_password: "{{ lookup('env', 'VM_INITIAL_PASSWORD') }}"
+
+# Registro no Red Hat Subscription Manager
+rhsm_username: "{{ lookup('env', 'RHSM_USERNAME') }}"
+rhsm_password: "{{ lookup('env', 'RHSM_PASSWORD') }}"
+
+# Senha do usuário usado para ingressar a VM no domínio (adcli join)
+ad_join_password: "{{ lookup('env', 'AD_JOIN_PASSWORD') }}"
+
+# Senha inicial do usuário de serviço svc_aap criado na VM
+svc_aap_initial_password: "{{ lookup('env', 'SVC_AAP_INITIAL_PASSWORD') }}"

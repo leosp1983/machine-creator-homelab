@@ -32,7 +32,7 @@
 
 - name: Gerar hash da senha
   ansible.builtin.set_fact:
-    newpass_hash: "{{ 'homelab@1983' | password_hash('sha512') }}"
+    newpass_hash: "{{ svc_aap_initial_password | password_hash('sha512') }}"
 
 - name: Criando usuário
   ansible.builtin.user:

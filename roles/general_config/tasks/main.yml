@@ -6,7 +6,7 @@
 
 - name: Registrando o sistema no Red Hat Subscription Manager
   ansible.builtin.shell: |
-    subscription-manager register --force --username=leosp1983 --password=Leonardo@1983 || /bin/true
+    subscription-manager register --force --username={{ rhsm_username }} --password={{ rhsm_password }} || /bin/true
 
 - name: configurando o arquivo .bashrc
   ansible.builtin.template:
